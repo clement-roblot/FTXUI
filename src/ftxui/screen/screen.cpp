@@ -61,89 +61,88 @@ void UpdatePixelStyle(const Screen* screen,
     ss << "\x1B]8;;" << screen->Hyperlink(next.hyperlink) << "\x1B\\";
   }
 
+  // This XOR lets us see what changed between the previous and next style
   Style styleChanged {.all=(next.style.all ^ previous.style.all)};
 
-  if(!styleChanged.all)
+  // If anything changed in the style
+  if(styleChanged.all)
   {
-    if (next.foreground_color != previous.foreground_color ||
-      next.background_color != previous.background_color) {
-      ss << "\x1B[" + next.foreground_color.Print(false) + "m";
-      ss << "\x1B[" + next.background_color.Print(true) + "m";
+    // This lets us get a bitfield at 1 when the style got turned off
+    Style styleTurnedOff {.all=(styleChanged.all & previous.style.all)};
+
+    if( styleTurnedOff.bold || styleTurnedOff.dim )
+    {
+      ss << "\x1B[22m";  // BOLD_RESET and DIM_RESET
+      // We might have wrongfully reset dim or bold because they share the same
+      // resetter. Take it into account so that the side effect will cause it to
+      // be set again below.
+      previous.bold = false;
+      previous.dim = false;
     }
-    return;
-  }
 
-  Style styleTurnedOff {.all=(styleChanged.all & previous.style.all)};
+    if( styleTurnedOff.underlined || styleTurnedOff.underlined_double )
+    {
+      // We might have wrongfully reset underlined or underlinedbold because they
+      // share the same resetter. Take it into account so that the side effect
+      // will cause it to be set again below.
+      ss << "\x1B[24m";  // UNDERLINED_RESET
+      previous.underlined = false;
+      previous.underlined_double = false;
+    }
 
-  if( styleTurnedOff.bold || styleTurnedOff.dim )
-  {
-    ss << "\x1B[22m";  // BOLD_RESET and DIM_RESET
-    // We might have wrongfully reset dim or bold because they share the same
-    // resetter. Take it into account so that the side effect will cause it to
-    // be set again below.
-    previous.bold = false;
-    previous.dim = false;
-  }
+    // We refresh our style changes as we may have changed some styles just above
+    styleChanged.all = (next.style.all ^ previous.style.all);
+    styleTurnedOff.all = (styleChanged.all & previous.style.all);
 
-  if( styleTurnedOff.underlined || styleTurnedOff.underlined_double )
-  {
-    // We might have wrongfully reset underlined or underlinedbold because they
-    // share the same resetter. Take it into account so that the side effect
-    // will cause it to be set again below.
-    ss << "\x1B[24m";  // UNDERLINED_RESET
-    previous.underlined = false;
-    previous.underlined_double = false;
-  }
+    // This lets us get a bitfield at 1 when the style got turned on
+    Style styleTurnedOn {.all=(styleChanged.all & next.style.all)};
 
-  styleChanged.all = (next.style.all ^ previous.style.all);
-  styleTurnedOff.all = (styleChanged.all & previous.style.all);
-  Style styleTurnedOn {.all=(styleChanged.all & next.style.all)};
+    if( styleTurnedOn.bold )
+    {
+      ss << "\x1B[1m";  // BOLD_SET
+    }
 
-  if( styleTurnedOn.bold )
-  {
-    ss << "\x1B[1m";  // BOLD_SET
-  }
+    if( styleTurnedOn.dim )
+    {
+      ss << "\x1B[2m";  // DIM_SET
+    }
 
-  if( styleTurnedOn.dim )
-  {
-    ss << "\x1B[2m";  // DIM_SET
-  }
+    if( styleTurnedOn.underlined )
+    {
+      ss << "\x1B[4m";  // UNDERLINED_SET
+    }
 
-  if( styleTurnedOn.underlined )
-  {
-    ss << "\x1B[4m";  // UNDERLINED_SET
-  }
+    if( styleTurnedOn.blink )
+    {
+      ss << "\x1B[5m";  // BLINK_SET
+    }
+    else if( styleTurnedOff.blink)
+    {
+      ss << "\x1B[25m";  // BLINK_RESET
+    }
 
-  if( styleTurnedOn.blink )
-  {
-    ss << "\x1B[5m";  // BLINK_SET
-  }
-  else if( styleTurnedOff.blink)
-  {
-    ss << "\x1B[25m";  // BLINK_RESET
-  }
+    if( styleTurnedOn.inverted )
+    {
+      ss << "\x1B[7m";  // INVERTED_SET
+    }
+    else if( styleTurnedOff.inverted)
+    {
+      ss << "\x1B[27m";  // INVERTED_RESET
+    }
 
-  if( styleTurnedOn.inverted )
-  {
-    ss << "\x1B[7m";  // INVERTED_SET
-  }
-  else if( styleTurnedOff.inverted)
-  {
-    ss << "\x1B[27m";  // INVERTED_RESET
-  }
+    if( styleTurnedOn.strikethrough )
+    {
+      ss << "\x1B[9m";  // CROSSED_OUT
+    }
+    else if( styleTurnedOff.strikethrough)
+    {
+      ss << "\x1B[29m";  // CROSSED_OUT_RESET
+    }
 
-  if( styleTurnedOn.strikethrough )
-  {
-    ss << "\x1B[9m";  // CROSSED_OUT
-  }
-  else if( styleTurnedOff.strikethrough)
-  {
-    ss << "\x1B[29m";  // CROSSED_OUT_RESET
-  }
-
-  if( styleTurnedOn.underlined_double )
-  {
-    ss << "\x1B[21m";  // DOUBLE_UNDERLINED_SET
+    if( styleTurnedOn.underlined_double )
+    {
+      ss << "\x1B[21m";  // DOUBLE_UNDERLINED_SET
+    }
   }
 
   if (next.foreground_color != previous.foreground_color ||
