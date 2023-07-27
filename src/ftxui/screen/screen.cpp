@@ -62,13 +62,13 @@ void UpdatePixelStyle(const Screen* screen,
   }
 
   // This XOR lets us see what changed between the previous and next style
-  Style styleChanged {.all=(next.style.all ^ previous.style.all)};
+  Style styleChanged {.all=static_cast<uint8_t>(next.style.all ^ previous.style.all)};
 
   // If anything changed in the style
   if(styleChanged.all)
   {
     // This lets us get a bitfield at 1 when the style got turned off
-    Style styleTurnedOff {.all=(styleChanged.all & previous.style.all)};
+    Style styleTurnedOff {.all=static_cast<uint8_t>(styleChanged.all & previous.style.all)};
 
     if( styleTurnedOff.bold || styleTurnedOff.dim )
     {
@@ -95,7 +95,7 @@ void UpdatePixelStyle(const Screen* screen,
     styleTurnedOff.all = (styleChanged.all & previous.style.all);
 
     // This lets us get a bitfield at 1 when the style got turned on
-    Style styleTurnedOn {.all=(styleChanged.all & next.style.all)};
+    Style styleTurnedOn {.all=static_cast<uint8_t>(styleChanged.all & next.style.all)};
 
     if( styleTurnedOn.bold )
     {
