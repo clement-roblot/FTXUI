@@ -48,7 +48,6 @@ struct Pixel {
   Color foreground_color = Color::Default;
 
   // A bit field representing the style:
-  bool underlined : 1;
   bool underlined_double : 1;
   bool strikethrough : 1;
   bool automerge : 1;
@@ -56,8 +55,7 @@ struct Pixel {
   Style style;
 
   Pixel()
-      : underlined(false),
-        underlined_double(false),
+      : underlined_double(false),
         strikethrough(false),
         automerge(false),
         style{.all=0} { }
