@@ -23,7 +23,6 @@ typedef union
       uint8_t underlined : 1;
       uint8_t underlined_double : 1;
       uint8_t strikethrough : 1;
-      uint8_t automerge : 1;
     };
     uint8_t all;
 } Style;
@@ -48,9 +47,9 @@ struct Pixel {
   Color foreground_color = Color::Default;
 
   // A bit field representing the style:
-  bool automerge : 1;
-
   Style style;
+  
+  bool automerge : 1;
 
   Pixel()
       : automerge(false),
