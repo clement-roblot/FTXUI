@@ -48,14 +48,12 @@ struct Pixel {
   Color foreground_color = Color::Default;
 
   // A bit field representing the style:
-  bool strikethrough : 1;
   bool automerge : 1;
 
   Style style;
 
   Pixel()
-      : strikethrough(false),
-        automerge(false),
+      : automerge(false),
         style{.all=0} { }
 };
 
