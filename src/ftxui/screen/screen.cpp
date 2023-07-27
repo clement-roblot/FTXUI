@@ -76,8 +76,8 @@ void UpdatePixelStyle(const Screen* screen,
       // We might have wrongfully reset dim or bold because they share the same
       // resetter. Take it into account so that the side effect will cause it to
       // be set again below.
-      previous.bold = false;
-      previous.dim = false;
+      previous.style.bold = false;
+      previous.style.dim = false;
     }
 
     if( styleTurnedOff.underlined || styleTurnedOff.underlined_double )
@@ -86,8 +86,8 @@ void UpdatePixelStyle(const Screen* screen,
       // share the same resetter. Take it into account so that the side effect
       // will cause it to be set again below.
       ss << "\x1B[24m";  // UNDERLINED_RESET
-      previous.underlined = false;
-      previous.underlined_double = false;
+      previous.style.underlined = false;
+      previous.style.underlined_double = false;
     }
 
     // We refresh our style changes as we may have changed some styles just above
@@ -402,7 +402,6 @@ bool Pixel::operator==(const Pixel& other) const {
   return character == other.character &&                //
          background_color == other.background_color &&  //
          foreground_color == other.foreground_color &&  //
-         bold == other.bold &&                          //
          dim == other.dim &&                            //
          inverted == other.inverted &&                  //
          underlined == other.underlined &&              //
