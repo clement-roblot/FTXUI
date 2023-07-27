@@ -402,7 +402,6 @@ bool Pixel::operator==(const Pixel& other) const {
   return character == other.character &&                //
          background_color == other.background_color &&  //
          foreground_color == other.foreground_color &&  //
-         inverted == other.inverted &&                  //
          underlined == other.underlined &&              //
          automerge == other.automerge &&                //
          style.all == other.style.all;                  //
