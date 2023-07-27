@@ -48,7 +48,6 @@ struct Pixel {
   Color foreground_color = Color::Default;
 
   // A bit field representing the style:
-  bool blink : 1;
   bool bold : 1;
   bool dim : 1;
   bool inverted : 1;
@@ -60,8 +59,7 @@ struct Pixel {
   Style style;
 
   Pixel()
-      : blink(false),
-        bold(false),
+      : bold(false),
         dim(false),
         inverted(false),
         underlined(false),
