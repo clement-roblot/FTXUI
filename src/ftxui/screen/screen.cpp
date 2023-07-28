@@ -62,32 +62,34 @@ void UpdatePixelStyle(const Screen* screen,
   }
 
   // This XOR lets us see what changed between the previous and next style
-  Style styleChanged {.all=static_cast<uint8_t>(next.style.all ^ previous.style.all)};
+  Style styleChanged;
+  styleChanged.all = static_cast<uint8_t>(next.style.all ^ previous.style.all);
 
   // If anything changed in the style
   if(styleChanged.all)
   {
     // This lets us get a bitfield at 1 when the style got turned off
-    Style styleTurnedOff {.all=static_cast<uint8_t>(styleChanged.all & previous.style.all)};
+    Style styleTurnedOff;
+    styleTurnedOff.all = static_cast<uint8_t>(styleChanged.all & previous.style.all);
 
-    if( styleTurnedOff.bold || styleTurnedOff.dim )
+    if( styleTurnedOff.bit.bold || styleTurnedOff.bit.dim )
     {
       ss << "\x1B[22m";  // BOLD_RESET and DIM_RESET
       // We might have wrongfully reset dim or bold because they share the same
       // resetter. Take it into account so that the side effect will cause it to
       // be set again below.
-      previous.style.bold = false;
-      previous.style.dim = false;
+      previous.style.bit.bold = false;
+      previous.style.bit.dim = false;
     }
 
-    if( styleTurnedOff.underlined || styleTurnedOff.underlined_double )
+    if( styleTurnedOff.bit.underlined || styleTurnedOff.bit.underlined_double )
     {
       // We might have wrongfully reset underlined or underlinedbold because they
       // share the same resetter. Take it into account so that the side effect
       // will cause it to be set again below.
       ss << "\x1B[24m";  // UNDERLINED_RESET
-      previous.style.underlined = false;
-      previous.style.underlined_double = false;
+      previous.style.bit.underlined = false;
+      previous.style.bit.underlined_double = false;
     }
 
     // We refresh our style changes as we may have changed some styles just above
@@ -95,51 +97,52 @@ void UpdatePixelStyle(const Screen* screen,
     styleTurnedOff.all = (styleChanged.all & previous.style.all);
 
     // This lets us get a bitfield at 1 when the style got turned on
-    Style styleTurnedOn {.all=static_cast<uint8_t>(styleChanged.all & next.style.all)};
+    Style styleTurnedOn;
+    styleTurnedOn.all = static_cast<uint8_t>(styleChanged.all & next.style.all);
 
-    if( styleTurnedOn.bold )
+    if( styleTurnedOn.bit.bold )
     {
       ss << "\x1B[1m";  // BOLD_SET
     }
 
-    if( styleTurnedOn.dim )
+    if( styleTurnedOn.bit.dim )
     {
       ss << "\x1B[2m";  // DIM_SET
     }
 
-    if( styleTurnedOn.underlined )
+    if( styleTurnedOn.bit.underlined )
     {
       ss << "\x1B[4m";  // UNDERLINED_SET
     }
 
-    if( styleTurnedOn.blink )
+    if( styleTurnedOn.bit.blink )
     {
       ss << "\x1B[5m";  // BLINK_SET
     }
-    else if( styleTurnedOff.blink)
+    else if( styleTurnedOff.bit.blink)
     {
       ss << "\x1B[25m";  // BLINK_RESET
     }
 
-    if( styleTurnedOn.inverted )
+    if( styleTurnedOn.bit.inverted )
     {
       ss << "\x1B[7m";  // INVERTED_SET
     }
-    else if( styleTurnedOff.inverted)
+    else if( styleTurnedOff.bit.inverted)
     {
       ss << "\x1B[27m";  // INVERTED_RESET
     }
 
-    if( styleTurnedOn.strikethrough )
+    if( styleTurnedOn.bit.strikethrough )
     {
       ss << "\x1B[9m";  // CROSSED_OUT
     }
-    else if( styleTurnedOff.strikethrough)
+    else if( styleTurnedOff.bit.strikethrough)
     {
       ss << "\x1B[29m";  // CROSSED_OUT_RESET
     }
 
-    if( styleTurnedOn.underlined_double )
+    if( styleTurnedOn.bit.underlined_double )
     {
       ss << "\x1B[21m";  // DOUBLE_UNDERLINED_SET
     }

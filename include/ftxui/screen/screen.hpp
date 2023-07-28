@@ -23,7 +23,7 @@ typedef union
       uint8_t underlined : 1;
       uint8_t underlined_double : 1;
       uint8_t strikethrough : 1;
-    };
+    } bit;
     uint8_t all;
 } Style;
 
@@ -52,8 +52,9 @@ struct Pixel {
   bool automerge : 1;
 
   Pixel()
-      : automerge(false),
-        style{.all=0} { }
+      : automerge(false) {
+        style.all = 0;
+  }
 };
 
 /// @brief Define how the Screen's dimensions should look like.
