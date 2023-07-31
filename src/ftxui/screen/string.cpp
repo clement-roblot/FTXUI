@@ -651,10 +651,6 @@ bool Bisearch(uint32_t ucs, const std::array<Interval, N>& table) {
 // Find a value inside a sorted list of Interval + property.
 template <class C, size_t N>
 bool Bisearch(uint32_t ucs, const std::array<C, N>& table, C* out) {
-  if (ucs < table.front().first || ucs > table.back().last) {  // NOLINT
-    return false;
-  }
-
   int min = 0;
   int max = N - 1;
   while (max >= min) {
